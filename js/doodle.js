@@ -29,12 +29,15 @@ class Doodle {
 	changeDirection(event) {
 	}
 
-	changeDirectionM(event) {
+	move(event) {
 		var rect = canvas.getBoundingClientRect();
-		this.x = Math.floor(event.clientX - rect.left);
+		var newX = Math.floor(event.clientX - rect.left);
+		if ((newX > 0) && (newX + 80 < 400)){
+			this.x = newX;
+		}
 	}
 
-	move() {
+	fall() {
 		this.y += this.dy;
 	}
 
@@ -43,7 +46,7 @@ class Doodle {
 	}
 
 	collide() {
-		for(var i = 0; i < 20; i++) {
+		for(var i = 0; i < platforms.length; i++) {
 			if((this.x + 62 > platforms[i].x) && (this.x + 20 < platforms[i].x + 62) &&  (this.y + 70 > platforms[i].y) && (this.y + 70 < platforms[i].y + 14) && (this.dy > 0)) {
 				this.dy = -10;
 			}
@@ -57,7 +60,7 @@ class Doodle {
 function gameOver() {
 	ctx.fillStyle = "black"
 	ctx.font = "50px Arial";
-	ctx.fillText("GAME OVER", 40, 90);	
+	ctx.fillText("GAME OVER", 40, 300);	
 	clearInterval(game)
 }
 
@@ -71,22 +74,28 @@ function youWin() {
 function init() {
 	player = new Doodle(100, 100);
 
-	for(var i = 0; i < 20; i++) {
-		platforms.push({x: Math.floor(Math.random()*400), y: Math.floor(Math.random()*533)});
+	for(var i = 0; i < 9; i++) {
+		platforms.push({x: Math.floor(Math.random()*330), y: i*50 + 170});
 	}
 }
 
 function tick() {
 	player.dy += 0.2;
-	player.move();
+	player.fall();
+
+	if(player.y > 533) {
+		isAlive = false;
+		gameOver();
+	}
 
 	if (player.y < h) {
 		player.y = h;
-		for(var i = 0; i < 20; i++) {
+		player.score += 1;
+		for(var i = 0; i < platforms.length; i++) {
 			platforms[i].y -= player.dy;
 			if(platforms[i].y > 533) {
 				platforms[i].y = 0;
-				platforms[i].x = Math.floor(Math.random()*400);
+				platforms[i].x = Math.floor(Math.random()*330);
 			}
 		}
 	}
@@ -95,13 +104,13 @@ function tick() {
 function drawAll() {
 	ctx.drawImage(bgImage, 0, 0);
 
-	ctx.fillStyle = "black"
-	ctx.font = "50px Arial";
-	ctx.fillText(player.score, 10, 500);
-
-	for(var i = 0; i < 20; i++) {
+	for(var i = 0; i < platforms.length; i++) {
 		ctx.drawImage(plImage, platforms[i].x, platforms[i].y);
 	}
+
+	ctx.fillStyle = "black"
+	ctx.font = "50px Arial";
+	ctx.fillText(player.score, 10, 50);
 
 	player.draw();
 }
@@ -127,7 +136,7 @@ document.addEventListener("keydown", function chdir(event) {
 
 
 canvas.addEventListener("mousemove", function chdir(event) {
-	player.changeDirectionM(event);
+	player.move(event);
 })
 
 main()
