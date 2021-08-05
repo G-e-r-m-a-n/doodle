@@ -11,7 +11,7 @@ plImage.src = "img/platform.png"
 var player;
 var platforms = [];
 var isAlive = true;
-var h = 200;
+var h = 201;
 
 class Doodle {
 	constructor(x, y) {
